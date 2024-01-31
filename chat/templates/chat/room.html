@@ -3,27 +3,32 @@
 <head>
     <meta charset="utf-8"/>
     <title>Chat Room</title>
+    <style>
+        #chat-log {
+            display: block;
+            width: 100%;
+            height: 200px;
+            overflow-y: auto;
+            cursor: default;
+            pointer-events: none;
+            border: 1px solid #ccc;
+            padding: 5px;
+        }
+
+        .bold-username {
+            font-weight: bold;
+        }
+    </style>
 </head>
-<style>
-    #chat-log {
-        display: block;
-        width: 100%; 
-        height: 200px; 
-        overflow-y: auto;
-        cursor: default; 
-        pointer-events: none; 
-        border: 1px solid #ccc;
-        padding: 5px;
-    }
-</style>
 <body>
-    <textarea id="chat-log" cols="100" rows="20" readonly></textarea><br>    
+    <div id="chat-log"></div><br>    
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
     {{ room_num|json_script:"room-num" }}
     <script>
         const roomNum = JSON.parse(document.getElementById('room-num').textContent);
 
+        const chatLog = document.getElementById('chat-log');
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
@@ -34,7 +39,17 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+
+            const usernameSpan = document.createElement('span');
+            usernameSpan.textContent = data.username;
+            usernameSpan.classList.add('bold-username');
+
+            const messageDiv = document.createElement('div');
+            messageDiv.appendChild(usernameSpan); 
+            messageDiv.appendChild(document.createTextNode(': ' + data.message));
+
+            chatLog.appendChild(messageDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
         };
 
         chatSocket.onclose = function(e) {
@@ -43,7 +58,7 @@
 
         document.querySelector('#chat-message-input').focus();
         document.querySelector('#chat-message-input').onkeyup = function(e) {
-            if (e.key === 'Enter') {  // enter, return
+            if (e.key === 'Enter') { 
                 document.querySelector('#chat-message-submit').click();
             }
         };
