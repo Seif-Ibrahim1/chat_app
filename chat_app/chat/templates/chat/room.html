@@ -46,8 +46,24 @@
 
             const messageDiv = document.createElement('div');
             messageDiv.appendChild(usernameSpan); 
-            messageDiv.appendChild(document.createTextNode(': ' + data.message));
-
+            // fetch the translated message from the api and send the message to the api in the body
+            fetch('http://127.0.0.1:7000/api/getLang', {
+                method: 'POST',
+                body: JSON.stringify({'text': data.message, 'lang': 'en'}),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin',
+            })
+            .then(response => response.json())
+            .then(data => {
+                const messageSpan = document.createElement('span');
+                messageSpan.textContent = data.text;
+                messageDiv.appendChild(messageSpan);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
             chatLog.appendChild(messageDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
         };
