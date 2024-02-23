@@ -26,7 +26,10 @@ SECRET_KEY = 'django-insecure-o-11chma@cr0bcz6-x3#(v4c29(phv)1esgx!zgn&sm33b)lrp
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    "chat_app",
     "127.0.0.1",
+    "0.0.0.0",
+    "localhost",
 ]
 
 
@@ -56,7 +59,10 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
+    "http://chat_app:8000",
+    "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "http://0.0.0.0:8000",
 ]
 
 ROOT_URLCONF = 'translator.urls'

@@ -41,7 +41,7 @@
             const data = JSON.parse(e.data);
 
             const usernameSpan = document.createElement('span');
-            usernameSpan.textContent = data.username;
+            usernameSpan.textContent = data.username + ': ';
             usernameSpan.classList.add('bold-username');
 
             const messageDiv = document.createElement('div');

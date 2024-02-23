@@ -1,16 +1,20 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
-from translate import Translator
-
+from googletrans import Translator
 
 @api_view(['POST'])
 def detect_language(request):
-    to_lang = request.data['lang']
+    # get the text from the request
     text = request.data['text']
-    translator= Translator(to_lang=to_lang, from_lang='autodetect')
-    translation = translator.translate(text=text)
+    to_lang = request.data['lang']
+    translation = translate_text(text, to_lang)
+
+    # translate the language of the text
     return Response({'text': translation})
 
+def translate_text(text, to_lang='en'):
+    translator = Translator()
+    translation = translator.translate(text, dest=to_lang)
+    return translation.text
 
