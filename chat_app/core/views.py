@@ -1,57 +1,60 @@
-from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages, auth
-
-# Create your views here.
-
-def signup(request):
-    if request.method == "POST":
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
-        password2 = request.POST['password2']
-
-        if password == password2:
-            if User.objects.filter(email=email):
-                messages.info(request, "Email is taken")
-                return redirect('signup')
-            elif User.objects.filter(username=username):
-                messages.info(request, "Username is taken")
-                return redirect('signup')
-            else:
-                user = User.objects.create_user(username=username, email=email, password=password)
-                user.save()
-                
-                userAuth = auth.authenticate(username=username, password=password)
-                auth.login(request, userAuth)
-                return redirect('/login')
-        
-        else:
-            messages.info(request, "Password not matching")
-            return redirect('signup')
-        
-    else:
-        return render(request, 'auth/signup.html')
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.response import Response
+from .serializer import User_serializer, UserLoginSerializer
+from django.shortcuts import get_object_or_404
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate, login
+from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
 
 
-def login(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-
-        user = auth.authenticate(username=username, password=password)
-
-        if user is not None:
-            auth.login(request, user)
-            return redirect('/chat')
-        else:
-            messages.info(request, 'Credentials Invalid')
-            return redirect('/login')
-    else:
-        return render(request, 'auth/login.html')
+# View for handling user-related operations
+@api_view(['GET', 'POST'])
+def users_view(request):
+    # Handling GET requests for user retrieval
+    if request.method == 'GET':
+        users = User.objects.filter()
+        serializer = User_serializer(users, many=True)
+        return Response(serializer.data)
     
-@login_required(login_url='login')
-def logout(request):
-    auth.logout(request)
-    return redirect('login')
+    # Handling POST requests for user creation
+    if request.method == 'POST':
+        data = request.data
+        username = data['username']
+        password = data['password']
+        email = data['email']
+        user = User.objects.create(username=username, password=password, email=email)
+        serializer = User_serializer(instance=user, many=False)
+        return Response(serializer.data, status=201)
+
+# View for handling individual user operations
+@api_view(['GET', 'PUT', 'DELETE'])
+def user_by_username(request, username):
+    user = get_object_or_404(User, username=username)
+    if request.method == 'GET':
+        serializer = User_serializer(user, many=False)
+        return Response(serializer.data)
+
+    if request.method == 'PUT':
+        # Handling PUT requests for user updates
+        data = request.data
+        if data.get('password') is not None:
+            password = data['password']
+            user.password = password
+        if data.get('email') is not None:
+            user.email  = data['email']
+    
+        user.save()
+
+        serializer = User_serializer(instance=user, many=False)
+        return Response(serializer.data)
+
+    if request.method == 'DELETE':
+        # Handling DELETE requests for user deletion
+        user.delete()
+        return Response()
+
+    return Response()
