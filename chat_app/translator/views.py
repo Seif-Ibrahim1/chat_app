@@ -17,4 +17,3 @@ def translate_text(text, to_lang='en'):
     translator = Translator()
     translation = translator.translate(text, dest=to_lang)
     return translation.text
-

@@ -19,5 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('', include ('core.urls')),
+    path('api/getLang', include('translator.urls')),
     path('admin/', admin.site.urls),
 ]

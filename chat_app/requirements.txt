@@ -4,3 +4,8 @@ channels-redis==4.2.0
 Django==4.2.1
 daphne==4.0.0
 django-cors-headers==4.2.0
+djangorestframework==3.14.0
+django-rest-framework==0.1.0
+django-restframework==0.0.1
+googletrans==4.0.0rc1
+djangorestframework-simplejwt==5.2.2

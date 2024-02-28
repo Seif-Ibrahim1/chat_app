@@ -38,6 +38,7 @@ CORS_ALLOWED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'translator',
     'corsheaders',
     'rest_framework_simplejwt',
     'rest_framework',

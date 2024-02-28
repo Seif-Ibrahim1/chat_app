@@ -11,13 +11,14 @@ services:
     depends_on:
       - redis
 
-  translator_api:
+  frontend:
     build:
-      context: ./translator
+      context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "7000:7000"
-    command: sh -c "python manage.py runserver 0.0.0.0:7000"
+      - "5173:5173"
+    depends_on:
+      - chat_app
 
   redis:
     image: "redis:7"
